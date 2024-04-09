@@ -24,9 +24,9 @@ class display;
 #ifdef USE_TINY_GUI
 const int min_allowed_width = 320;
 const int min_allowed_height = 240;
-#else
-const int min_allowed_width = 800;
-const int min_allowed_height = 600;
+#else // Miyoo mini, force 640x480 allowed - Don't use tiny gui it doesn't work? 
+const int min_allowed_width = 640;
+const int min_allowed_height = 480;
 #endif
 
 namespace preferences {

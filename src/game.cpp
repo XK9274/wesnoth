@@ -292,9 +292,9 @@ bool game_controller::init_video()
 		          << "x" << resolution.second << "x" << DefaultBPP << " "
 		          << "is not supported - attempting 1024x768x" << DefaultBPP << "...\n";
 
-		//Attempt 1024x768.
-		resolution.first = 1024;
-		resolution.second = 768;
+		// Miyoo doesn't support 1024x768 - Force 640x480 (much to the disagreement of the UI)
+		resolution.first = 640;
+		resolution.second = 480;
 
 		bpp = video_.modePossible(resolution.first,resolution.second,DefaultBPP,video_flags);
 
@@ -307,7 +307,7 @@ bool game_controller::init_video()
 			bpp = video_.modePossible(resolution.first,resolution.second,DefaultBPP,video_flags);
 		}
 
-#ifdef USE_TINY_GUI
+#ifdef USE_TINY_GUI // don't use this, it causes problems.
 		if(bpp == 0) {
 			std::cerr << "800x600x" << DefaultBPP << " not available - attempting 640x480x" << DefaultBPP << "...\n";
 
