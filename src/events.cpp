@@ -220,6 +220,7 @@ void pump()
 	SDL_PumpEvents();
 
 	static std::pair<int,int> resize_dimensions(0,0);
+    static std::pair<int, int> last_warped_mouse_position(-1, -1);
 
 	//used to keep track of double click events
 	static int last_mouse_down = -1;
@@ -227,7 +228,6 @@ void pump()
 
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
-
 		switch(event.type) {
 
 			case SDL_APPMOUSEFOCUS: {
@@ -237,6 +237,71 @@ void pump()
 				}
 				break;
 			}
+            
+            case SDL_KEYDOWN: {
+                SDL_Surface* screen = SDL_GetVideoSurface();
+                static int virtual_mouse_x = screen->w / 2;
+                static int virtual_mouse_y = screen->h / 2; 
+                
+                // step per event
+                const int MOUSE_MOVE_STEP = 3;
+
+                switch(event.key.keysym.sym) {
+                    case SDLK_UP:
+                        virtual_mouse_y = std::max(0, virtual_mouse_y - MOUSE_MOVE_STEP);
+                        break;
+                    case SDLK_DOWN:
+                        virtual_mouse_y = std::min(screen->h - 1, virtual_mouse_y + MOUSE_MOVE_STEP);
+                        break;
+                    case SDLK_LEFT:
+                        virtual_mouse_x = std::max(0, virtual_mouse_x - MOUSE_MOVE_STEP);
+                        break;
+                    case SDLK_RIGHT:
+                        virtual_mouse_x = std::min(screen->w - 1, virtual_mouse_x + MOUSE_MOVE_STEP);
+                        break;
+                    case SDLK_SPACE: { 
+                        SDL_Event simulatedEvent;
+                        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+                        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+                        simulatedEvent.button.x = virtual_mouse_x;
+                        simulatedEvent.button.y = virtual_mouse_y;
+                        SDL_PushEvent(&simulatedEvent);
+                        break;
+                    }
+                    case SDLK_LCTRL: { 
+                        SDL_Event simulatedEvent;
+                        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+                        simulatedEvent.button.button = SDL_BUTTON_LEFT;
+                        simulatedEvent.button.x = virtual_mouse_x;
+                        simulatedEvent.button.y = virtual_mouse_y;
+                        SDL_PushEvent(&simulatedEvent);
+                        break;
+                    }
+                    default:
+                        break;
+                        
+                }
+                
+                if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
+                    event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
+                    int transposed_x = screen->w - 1 - virtual_mouse_x;
+                    int transposed_y = screen->h - 1 - virtual_mouse_y;
+                    
+                    // warp mouse will push an event and move the mouse
+                    SDL_WarpMouse(transposed_x, transposed_y);
+                    
+                    last_warped_mouse_position.first = transposed_x;
+                    last_warped_mouse_position.second = transposed_y;
+                    
+                    std::cout << "Warp mouse to transposed coordinates: ("
+                              << transposed_x << ", " << transposed_y << ")" << std::endl;
+                              
+                    // try and force the cursor on
+                    raise_help_string_event(transposed_x,transposed_y);
+                    cursor::set_focus(true);
+                }
+                break;
+            }
 
 			//if the window must be redrawn, update the entire screen
 			case SDL_VIDEOEXPOSE: {
@@ -255,14 +320,6 @@ void pump()
 					resize_dimensions.second = resize->h;
 				}
 
-				break;
-			}
-
-			case SDL_MOUSEMOTION: {
-				//always make sure a cursor is displayed if the
-				//mouse moves or if the user clicks
-				cursor::set_focus(true);
-				raise_help_string_event(event.motion.x,event.motion.y);
 				break;
 			}
 
