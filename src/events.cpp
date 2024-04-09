@@ -259,7 +259,7 @@ void pump()
                     case SDLK_RIGHT:
                         virtual_mouse_x = std::min(screen->w - 1, virtual_mouse_x + MOUSE_MOVE_STEP);
                         break;
-                    case SDLK_SPACE: { 
+                    case SDLK_LCTRL: { 
                         SDL_Event simulatedEvent;
                         simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
                         simulatedEvent.button.button = SDL_BUTTON_RIGHT;
@@ -268,7 +268,7 @@ void pump()
                         SDL_PushEvent(&simulatedEvent);
                         break;
                     }
-                    case SDLK_LCTRL: { 
+                    case SDLK_SPACE: { 
                         SDL_Event simulatedEvent;
                         simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
                         simulatedEvent.button.button = SDL_BUTTON_LEFT;
