@@ -222,7 +222,7 @@ void pump()
 	static std::pair<int,int> resize_dimensions(0,0);
     static std::pair<int, int> last_warped_mouse_position(-1, -1);
 
-	//used to keep track of double click events
+	//used to keep track of double click eventss
 	static int last_mouse_down = -1;
 	static int last_click_x = -1, last_click_y = -1;
 
