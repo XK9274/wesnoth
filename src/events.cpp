@@ -22,6 +22,7 @@
 #include "wassert.hpp"
 
 #include "SDL.h"
+#include "SDL_image.h"
 
 #include <algorithm>
 #include <deque>
@@ -218,15 +219,21 @@ bool has_focus(const handler* ptr)
 void pump()
 {
 	SDL_PumpEvents();
-
+    	SDL_Surface* screen = SDL_GetVideoSurface();
+    	
 	static std::pair<int,int> resize_dimensions(0,0);
-    static std::pair<int, int> last_warped_mouse_position(-1, -1);
 
-	//used to keep track of double click eventss
+	//used to keep track of double click events
 	static int last_mouse_down = -1;
 	static int last_click_x = -1, last_click_y = -1;
-
-	SDL_Event event;
+	static SDL_Event simulatedEvent;
+    	static int mouseX = screen->w/2;
+    	static int mouseY = screen->h/2;
+	const int MOUSE_MOVE_STEP = 5;
+    	
+        update_whole_screen();
+        SDL_Flip(screen);
+        SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
 
@@ -238,71 +245,82 @@ void pump()
 				break;
 			}
             
-            case SDL_KEYDOWN: {
-                SDL_Surface* screen = SDL_GetVideoSurface();
-                static int virtual_mouse_x = screen->w / 2;
-                static int virtual_mouse_y = screen->h / 2; 
-                
-                // step per event
-                const int MOUSE_MOVE_STEP = 3;
+		    case SDL_KEYDOWN: {
+			switch(event.key.keysym.sym) {
+			    case SDLK_SPACE: { 
+				int transposed_x = screen->w - 1 - mouseX;
+                    	        int transposed_y = screen->h - 1 - mouseY;
+			        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+			        simulatedEvent.button.button = SDL_BUTTON_LEFT;
+			        simulatedEvent.button.x = transposed_x;
+			        simulatedEvent.button.y = transposed_y;
+			        ::SDL_PushEvent(&simulatedEvent);
+			        SDL_PumpEvents();
+			        simulatedEvent.type = SDL_MOUSEBUTTONUP;
+			        simulatedEvent.button.button = SDL_BUTTON_LEFT;
+			        simulatedEvent.button.x = transposed_x;
+			        simulatedEvent.button.y = transposed_y;
+			        ::SDL_PushEvent(&simulatedEvent);
+			        SDL_PumpEvents();
+			        break;
+			    }
+			    case SDLK_LCTRL: { 
+			    	int transposed_x = screen->w - 1 - mouseX;
+                    	        int transposed_y = screen->h - 1 - mouseY;
+			        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+			        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+			        simulatedEvent.button.x = transposed_x;
+			        simulatedEvent.button.y = transposed_y;
+			        ::SDL_PushEvent(&simulatedEvent);
+			        SDL_PumpEvents();
+			        simulatedEvent.type = SDL_MOUSEBUTTONUP;
+			        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+			        simulatedEvent.button.x = transposed_x;
+			        simulatedEvent.button.y = transposed_y;
+			        ::SDL_PushEvent(&simulatedEvent);
+			        SDL_PumpEvents();
+			        break;
+			    }
+			    case SDLK_UP:
+		                mouseY += MOUSE_MOVE_STEP;
+		                break;
+		            case SDLK_DOWN:
+		                mouseY -= MOUSE_MOVE_STEP;
+		                break;
+		            case SDLK_LEFT:
+		                mouseX += MOUSE_MOVE_STEP;
+		                break;
+		            case SDLK_RIGHT:
+		                mouseX -= MOUSE_MOVE_STEP;
+		                break;
+			    default:
+			        break;
+			        
+			}
 
-                switch(event.key.keysym.sym) {
-                    case SDLK_UP:
-                        virtual_mouse_y = std::max(0, virtual_mouse_y - MOUSE_MOVE_STEP);
-                        break;
-                    case SDLK_DOWN:
-                        virtual_mouse_y = std::min(screen->h - 1, virtual_mouse_y + MOUSE_MOVE_STEP);
-                        break;
-                    case SDLK_LEFT:
-                        virtual_mouse_x = std::max(0, virtual_mouse_x - MOUSE_MOVE_STEP);
-                        break;
-                    case SDLK_RIGHT:
-                        virtual_mouse_x = std::min(screen->w - 1, virtual_mouse_x + MOUSE_MOVE_STEP);
-                        break;
-                    case SDLK_LCTRL: { 
-                        SDL_Event simulatedEvent;
-                        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
-                        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
-                        simulatedEvent.button.x = virtual_mouse_x;
-                        simulatedEvent.button.y = virtual_mouse_y;
-                        SDL_PushEvent(&simulatedEvent);
-                        break;
-                    }
-                    case SDLK_SPACE: { 
-                        SDL_Event simulatedEvent;
-                        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
-                        simulatedEvent.button.button = SDL_BUTTON_LEFT;
-                        simulatedEvent.button.x = virtual_mouse_x;
-                        simulatedEvent.button.y = virtual_mouse_y;
-                        SDL_PushEvent(&simulatedEvent);
-                        break;
-                    }
-                    default:
-                        break;
-                        
-                }
-                
-                if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
-                    event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
-                    int transposed_x = screen->w - 1 - virtual_mouse_x;
-                    int transposed_y = screen->h - 1 - virtual_mouse_y;
-                    
-                    // warp mouse will push an event and move the mouse
-                    SDL_WarpMouse(transposed_x, transposed_y);
-                    
-                    last_warped_mouse_position.first = transposed_x;
-                    last_warped_mouse_position.second = transposed_y;
-                    
-                    std::cout << "Warp mouse to transposed coordinates: ("
-                              << transposed_x << ", " << transposed_y << ")" << std::endl;
-                              
-                    // try and force the cursor on
-                    raise_help_string_event(transposed_x,transposed_y);
-                    cursor::set_focus(true);
-                }
-                break;
-            }
-
+			if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
+			    event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
+			    int transposed_x = screen->w - 1 - mouseX;
+                    	    int transposed_y = screen->h - 1 - mouseY;
+                            SDL_WarpMouse(transposed_x, transposed_y);
+			    update_whole_screen();
+			    SDL_Flip(screen);
+			    SDL_WarpMouse(mouseX, mouseY);
+			    simulatedEvent.type = SDL_MOUSEMOTION;
+			    simulatedEvent.motion.x = transposed_x;
+			    simulatedEvent.motion.y = transposed_y;
+			    ::SDL_PushEvent(&simulatedEvent);
+			    SDL_PumpEvents();
+			}
+			break;
+		    }
+			case SDL_MOUSEMOTION: {
+				//always make sure a cursor is displayed if the
+				//mouse moves or if the user clicks
+				cursor::set_focus(true);
+				raise_help_string_event(event.motion.x,event.motion.y);
+				break;
+			}
 			//if the window must be redrawn, update the entire screen
 			case SDL_VIDEOEXPOSE: {
 				update_whole_screen();
