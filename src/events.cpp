@@ -231,8 +231,6 @@ void pump()
     	static int mouseY = screen->h/2;
 	const int MOUSE_MOVE_STEP = 5;
     	
-        update_whole_screen();
-        SDL_Flip(screen);
         SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
@@ -300,12 +298,10 @@ void pump()
 
 			if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
 			    event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
+                            SDL_WarpMouse(mouseX, mouseY);
+			    SDL_Flip(screen);
 			    int transposed_x = screen->w - 1 - mouseX;
                     	    int transposed_y = screen->h - 1 - mouseY;
-                            SDL_WarpMouse(transposed_x, transposed_y);
-			    update_whole_screen();
-			    SDL_Flip(screen);
-			    SDL_WarpMouse(mouseX, mouseY);
 			    simulatedEvent.type = SDL_MOUSEMOTION;
 			    simulatedEvent.motion.x = transposed_x;
 			    simulatedEvent.motion.y = transposed_y;
