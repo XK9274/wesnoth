@@ -230,7 +230,9 @@ void pump()
     static int mouseX = screen->w/2;
     static int mouseY = screen->h/2;
 	const int MOUSE_MOVE_STEP = 10;
-    	
+	if (cursor::is_emulated())
+		SDL_WarpMouse(mouseX, mouseY);
+
     SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
@@ -244,12 +246,12 @@ void pump()
 			}
 
 		    case SDL_KEYDOWN: {
+				Uint8* keys = SDL_GetKeyState(NULL);
 				if (cursor::is_emulated()) {
-					Uint8* keys = SDL_GetKeyState(NULL);
 					switch(event.key.keysym.sym) {
 						case SDLK_TAB: {
 							cursor::set_emulated(false);
-							cursor::set_focus(true);
+							cursor::undraw(screen);
 							SDL_Flip(screen);
 							break;
 						}
@@ -261,7 +263,7 @@ void pump()
 							simulatedEvent.button.state = SDL_PRESSED;
 							simulatedEvent.button.x = transposed_x;
 							simulatedEvent.button.y = transposed_y;
-							::SDL_PushEvent(&simulatedEvent);
+							SDL_PushEvent(&simulatedEvent);
 							SDL_PumpEvents();
 							SDL_Delay(1);
 							simulatedEvent.type = SDL_MOUSEBUTTONUP;
@@ -269,7 +271,7 @@ void pump()
 							simulatedEvent.button.state = SDL_RELEASED;
 							simulatedEvent.button.x = transposed_x;
 							simulatedEvent.button.y = transposed_y;
-							::SDL_PushEvent(&simulatedEvent);
+							SDL_PushEvent(&simulatedEvent);
 							SDL_PumpEvents();
 							break;
 						}
@@ -281,7 +283,7 @@ void pump()
 							simulatedEvent.button.state = SDL_PRESSED;
 							simulatedEvent.button.x = transposed_x;
 							simulatedEvent.button.y = transposed_y;
-							::SDL_PushEvent(&simulatedEvent);
+							SDL_PushEvent(&simulatedEvent);
 							SDL_PumpEvents();
 							SDL_Delay(1);
 							simulatedEvent.type = SDL_MOUSEBUTTONUP;
@@ -289,7 +291,7 @@ void pump()
 							simulatedEvent.button.state = SDL_RELEASED;
 							simulatedEvent.button.x = transposed_x;
 							simulatedEvent.button.y = transposed_y;
-							::SDL_PushEvent(&simulatedEvent);
+							SDL_PushEvent(&simulatedEvent);
 							SDL_PumpEvents();
 							break;
 						}
@@ -327,21 +329,27 @@ void pump()
 
 					if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
 						event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
+						cursor::undraw(screen);
 						SDL_WarpMouse(mouseX, mouseY);
+						cursor::set_focus(true);
+						cursor::draw(screen);
 						SDL_Flip(screen);
 						int transposed_x = screen->w - 1 - mouseX;
 						int transposed_y = screen->h - 1 - mouseY;
 						simulatedEvent.type = SDL_MOUSEMOTION;
 						simulatedEvent.motion.x = transposed_x;
 						simulatedEvent.motion.y = transposed_y;
-						::SDL_PushEvent(&simulatedEvent);
+						SDL_PushEvent(&simulatedEvent);
 						SDL_PumpEvents();
 					}
 					break;
 				}
 				else if (event.key.keysym.sym == SDLK_TAB) {
 					cursor::set_emulated(true);
+					cursor::undraw(screen);
+					SDL_WarpMouse(mouseX, mouseY);
 					cursor::set_focus(true);
+					cursor::draw(screen);
 					SDL_Flip(screen);
 					break;
 				}

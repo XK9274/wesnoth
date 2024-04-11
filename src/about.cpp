@@ -401,7 +401,7 @@ void show_about(display &disp)
 
 	int offset = 0;
 	bool is_new_line = true;
-
+	bool escape_pressed = false;
 	int first_line_height = 0;
 
 	// the following rectangles define the top, middle and bottom of the background image
@@ -464,8 +464,10 @@ void show_about(display &disp)
 		update_rect(map_rect);
 		disp.flip();
 		SDL_Delay(20);
-
-	} while(!close.pressed());
+		Uint8* keys = SDL_GetKeyState(NULL);
+		if(keys[SDLK_ESCAPE])
+			escape_pressed = true;
+	} while(!close.pressed() && !escape_pressed);
 
 }
 

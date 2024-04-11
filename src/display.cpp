@@ -613,14 +613,17 @@ void display::flip()
 	halo::render();
 	font::draw_floating_labels(frameBuffer);
 	events::raise_volatile_draw_event();
-	cursor::draw(frameBuffer);
+	if(cursor::is_emulated() == false)
+		cursor::draw(frameBuffer);
 
 	video().flip();
 
-	cursor::undraw(frameBuffer);
+	if(cursor::is_emulated() == false)
+		cursor::undraw(frameBuffer);
 	events::raise_volatile_undraw_event();
 	font::undraw_floating_labels(frameBuffer);
 	halo::unrender();
+
 }
 
 namespace {

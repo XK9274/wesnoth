@@ -205,7 +205,9 @@ void draw(surface screen)
 
 	int new_cursor_x, new_cursor_y;
 	SDL_GetMouseState(&new_cursor_x,&new_cursor_y);
-
+	new_cursor_x = screen->w - 1 - new_cursor_x;
+	new_cursor_y = screen->h - 1 - new_cursor_y;
+	
 	const bool must_update = new_cursor_x != cursor_x || new_cursor_y != cursor_y;
 	cursor_x = new_cursor_x;
 	cursor_y = new_cursor_y;
