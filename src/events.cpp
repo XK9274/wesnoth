@@ -329,8 +329,9 @@ void pump()
 
 					if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
 						event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
-						cursor::undraw(screen);
 						SDL_WarpMouse(mouseX, mouseY);
+						cursor::undraw(screen);
+						SDL_Flip(screen);
 						cursor::set_focus(true);
 						cursor::draw(screen);
 						SDL_Flip(screen);
@@ -346,8 +347,9 @@ void pump()
 				}
 				else if (event.key.keysym.sym == SDLK_TAB) {
 					cursor::set_emulated(true);
-					cursor::undraw(screen);
 					SDL_WarpMouse(mouseX, mouseY);
+					cursor::undraw(screen);
+					SDL_Flip(screen);
 					cursor::set_focus(true);
 					cursor::draw(screen);
 					SDL_Flip(screen);
