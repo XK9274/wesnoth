@@ -789,8 +789,6 @@ bool turn_info::move_unit_along_current_route(bool check_shroud)
 
 void turn_info::left_click(const SDL_MouseButtonEvent& event)
 {
-	std::cout << "Mouse click - coord: " << event.x << " - " << event.y << std::endl; 	
-
 	if(commands_disabled) {
 		return;
 	}
