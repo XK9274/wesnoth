@@ -14,6 +14,7 @@
 #include "../global.hpp"
 
 #include "menu.hpp"
+#include "cursor.hpp"
 
 #include "../font.hpp"
 #include "../image.hpp"
@@ -493,10 +494,12 @@ void menu::key_press(SDLKey key)
 	if (!click_selects_) {
 		switch(key) {
 		case SDLK_UP:
-			move_selection_up(1);
+			if(cursor::is_emulated() == false)
+				move_selection_up(1);
 			break;
 		case SDLK_DOWN:
-			move_selection_down(1);
+			if(cursor::is_emulated() == false)
+				move_selection_down(1);
 			break;
 		case SDLK_PAGEUP:
 			move_selection_up(max_items_onscreen());
@@ -525,7 +528,7 @@ void menu::key_press(SDLKey key)
 void menu::handle_event(const SDL_Event& event)
 {
 	scrollarea::handle_event(event);
-	if(event.type == SDL_KEYDOWN) {
+	if(cursor::is_emulated() == false && event.type == SDL_KEYDOWN) {
 		// Only pass key events if we have the focus
 		if (focus())
 			key_press(event.key.keysym.sym);

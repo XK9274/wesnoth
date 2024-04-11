@@ -188,18 +188,20 @@ void turn_info::turn_slice()
 
 	const int scroll_threshold = 5;
 
-	if(key_[SDLK_UP] || mousey < scroll_threshold)
-		gui_.scroll(0,-preferences::scroll_speed());
+	if(cursor::is_emulated() == false) {
+		if(key_[SDLK_UP] || mousey < scroll_threshold)
+			gui_.scroll(0,-preferences::scroll_speed());
 
-	if(key_[SDLK_DOWN] || mousey > gui_.y()-scroll_threshold)
-		gui_.scroll(0,preferences::scroll_speed());
+		if(key_[SDLK_DOWN] || mousey > gui_.y()-scroll_threshold)
+			gui_.scroll(0,preferences::scroll_speed());
 
-	const bool use_left_right = (textbox_.active() == false);
-	if(use_left_right && key_[SDLK_LEFT] || mousex < scroll_threshold)
-		gui_.scroll(-preferences::scroll_speed(),0);
+		const bool use_left_right = (textbox_.active() == false);
+		if(use_left_right && key_[SDLK_LEFT] || mousex < scroll_threshold)
+			gui_.scroll(-preferences::scroll_speed(),0);
 
-	if(use_left_right && key_[SDLK_RIGHT] || mousex > gui_.x()-scroll_threshold)
-		gui_.scroll(preferences::scroll_speed(),0);
+		if(use_left_right && key_[SDLK_RIGHT] || mousex > gui_.x()-scroll_threshold)
+			gui_.scroll(preferences::scroll_speed(),0);
+	}
 
 	if(!browse_ && current_team().objectives_changed()) {
 		dialogs::show_objectives(gui_, level_, current_team().objectives());
@@ -229,41 +231,43 @@ void turn_info::handle_event(const SDL_Event& event)
 	case SDL_KEYDOWN:
 		//detect key press events, unless there is a textbox present on-screen
 		//in which case the key press events should go only to it.
-		if(textbox_.active() == false) {
-			hotkey::key_event(gui_,event.key,this);
-		} else if(event.key.keysym.sym == SDLK_ESCAPE) {
-			close_textbox();
-		} else if(event.key.keysym.sym == SDLK_TAB) {
-			tab_textbox();
-		} else if(event.key.keysym.sym == SDLK_RETURN) {
-			enter_textbox();
+		if(cursor::is_emulated() == false) {
+			if(textbox_.active() == false) {
+				hotkey::key_event(gui_,event.key,this);
+			} else if(event.key.keysym.sym == SDLK_ESCAPE) {
+				close_textbox();
+			} else if(event.key.keysym.sym == SDLK_TAB) {
+				tab_textbox();
+			} else if(event.key.keysym.sym == SDLK_RETURN) {
+				enter_textbox();
+			}
 		}
-
 		//intentionally fall-through
 	case SDL_KEYUP:
 
 		//if the user has pressed 1 through 9, we want to show how far
 		//the unit can move in that many turns
-		if(event.key.keysym.sym >= '1' && event.key.keysym.sym <= '7') {
-			const int new_path_turns = (event.type == SDL_KEYDOWN) ?
-			                           event.key.keysym.sym - '1' : 0;
+		if(cursor::is_emulated() == false) {
+			if(event.key.keysym.sym >= '1' && event.key.keysym.sym <= '7') {
+				const int new_path_turns = (event.type == SDL_KEYDOWN) ?
+										event.key.keysym.sym - '1' : 0;
 
-			if(new_path_turns != path_turns_) {
-				path_turns_ = new_path_turns;
+				if(new_path_turns != path_turns_) {
+					path_turns_ = new_path_turns;
 
-				const unit_map::iterator u = selected_unit();
+					const unit_map::iterator u = selected_unit();
 
-				if(u != units_.end() && u->second.side() == team_num_) {
-					const bool ignore_zocs = u->second.type().is_skirmisher();
-					const bool teleport = u->second.type().teleports();
-					current_paths_ = paths(map_,status_,gameinfo_,units_,u->first,
-					                       teams_,ignore_zocs,teleport,
-					                       path_turns_);
-					gui_.set_paths(&current_paths_);
+					if(u != units_.end() && u->second.side() == team_num_) {
+						const bool ignore_zocs = u->second.type().is_skirmisher();
+						const bool teleport = u->second.type().teleports();
+						current_paths_ = paths(map_,status_,gameinfo_,units_,u->first,
+											teams_,ignore_zocs,teleport,
+											path_turns_);
+						gui_.set_paths(&current_paths_);
+					}
 				}
 			}
 		}
-
 		break;
 	case SDL_MOUSEMOTION:
 		// ignore old mouse motion events in the event queue
@@ -476,7 +480,7 @@ private:
 void turn_info::mouse_press(const SDL_MouseButtonEvent& event)
 {
 	mouse_motion(event.x,event.y);
-
+	
 	if(is_left_click(event) && event.state == SDL_RELEASED) {
 		minimap_scrolling_ = false;
 	} else if(is_middle_click(event) && event.state == SDL_RELEASED) {
@@ -785,6 +789,8 @@ bool turn_info::move_unit_along_current_route(bool check_shroud)
 
 void turn_info::left_click(const SDL_MouseButtonEvent& event)
 {
+	std::cout << "Mouse click - coord: " << event.x << " - " << event.y << std::endl; 	
+
 	if(commands_disabled) {
 		return;
 	}

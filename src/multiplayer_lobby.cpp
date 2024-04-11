@@ -175,7 +175,7 @@ void gamebrowser::handle_event(const SDL_Event& event)
 {
 	scrollarea::handle_event(event);
 	if(event.type == SDL_KEYDOWN) {
-		if(focus() && !games_.empty()) {
+		if(cursor::is_emulated() == false && focus() && !games_.empty()) {
 			switch(event.key.keysym.sym) {
 				case SDLK_UP:
 					if(selected_ > 0) {

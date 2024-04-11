@@ -338,7 +338,7 @@ void file_chooser::update_file_lists() {
 }
 
 void file_chooser::handle_event(const SDL_Event& event) {
-	if (event.type == SDL_KEYDOWN) {
+	if (cursor::is_emulated() == false && event.type == SDL_KEYDOWN) {
 		if (event.key.keysym.sym == SDLK_RETURN) {
 			if (filename_textbox_.focus()) {
 				chosen_file_ = filename_textbox_.text();

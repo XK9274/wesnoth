@@ -23,6 +23,7 @@
 #include "sound.hpp"
 #include "video.hpp"
 #include "replay.hpp"
+#include "cursor.hpp"
 
 #define LOG_NW LOG_STREAM(info, network)
 #define ERR_NW LOG_STREAM(err, network)
@@ -266,7 +267,7 @@ void ui::process_event()
 
 void ui::handle_event(const SDL_Event& event)
 {
-	if(event.type == SDL_KEYDOWN) {
+	if(cursor::is_emulated() == false && event.type == SDL_KEYDOWN) {
 		handle_key_event(event.key);
 	}
 }

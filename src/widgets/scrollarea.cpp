@@ -141,7 +141,7 @@ void scrollarea::handle_event(const SDL_Event& event)
 {
 	if (hidden() || event.type != SDL_MOUSEBUTTONDOWN)
 		return;
-
+				
 	SDL_MouseButtonEvent const &e = event.button;
 	if (point_in_rect(e.x, e.y, inner_location())) {
 		if (e.button == SDL_BUTTON_WHEELDOWN) {

@@ -219,7 +219,7 @@ bool has_focus(const handler* ptr)
 void pump()
 {
 	SDL_PumpEvents();
-    	SDL_Surface* screen = SDL_GetVideoSurface();
+    SDL_Surface* screen = SDL_GetVideoSurface();
     	
 	static std::pair<int,int> resize_dimensions(0,0);
 
@@ -227,11 +227,11 @@ void pump()
 	static int last_mouse_down = -1;
 	static int last_click_x = -1, last_click_y = -1;
 	static SDL_Event simulatedEvent;
-    	static int mouseX = screen->w/2;
-    	static int mouseY = screen->h/2;
-	const int MOUSE_MOVE_STEP = 5;
+    static int mouseX = screen->w/2;
+    static int mouseY = screen->h/2;
+	const int MOUSE_MOVE_STEP = 10;
     	
-        SDL_Event event;
+    SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
 
@@ -242,74 +242,95 @@ void pump()
 				}
 				break;
 			}
-            
-		    case SDL_KEYDOWN: {
-			switch(event.key.keysym.sym) {
-			    case SDLK_SPACE: { 
-				int transposed_x = screen->w - 1 - mouseX;
-                    	        int transposed_y = screen->h - 1 - mouseY;
-			        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
-			        simulatedEvent.button.button = SDL_BUTTON_LEFT;
-			        simulatedEvent.button.x = transposed_x;
-			        simulatedEvent.button.y = transposed_y;
-			        ::SDL_PushEvent(&simulatedEvent);
-			        SDL_PumpEvents();
-			        simulatedEvent.type = SDL_MOUSEBUTTONUP;
-			        simulatedEvent.button.button = SDL_BUTTON_LEFT;
-			        simulatedEvent.button.x = transposed_x;
-			        simulatedEvent.button.y = transposed_y;
-			        ::SDL_PushEvent(&simulatedEvent);
-			        SDL_PumpEvents();
-			        break;
-			    }
-			    case SDLK_LCTRL: { 
-			    	int transposed_x = screen->w - 1 - mouseX;
-                    	        int transposed_y = screen->h - 1 - mouseY;
-			        simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
-			        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
-			        simulatedEvent.button.x = transposed_x;
-			        simulatedEvent.button.y = transposed_y;
-			        ::SDL_PushEvent(&simulatedEvent);
-			        SDL_PumpEvents();
-			        simulatedEvent.type = SDL_MOUSEBUTTONUP;
-			        simulatedEvent.button.button = SDL_BUTTON_RIGHT;
-			        simulatedEvent.button.x = transposed_x;
-			        simulatedEvent.button.y = transposed_y;
-			        ::SDL_PushEvent(&simulatedEvent);
-			        SDL_PumpEvents();
-			        break;
-			    }
-			    case SDLK_UP:
-		                mouseY += MOUSE_MOVE_STEP;
-		                break;
-		            case SDLK_DOWN:
-		                mouseY -= MOUSE_MOVE_STEP;
-		                break;
-		            case SDLK_LEFT:
-		                mouseX += MOUSE_MOVE_STEP;
-		                break;
-		            case SDLK_RIGHT:
-		                mouseX -= MOUSE_MOVE_STEP;
-		                break;
-			    default:
-			        break;
-			        
-			}
 
-			if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
-			    event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
-                            SDL_WarpMouse(mouseX, mouseY);
-			    SDL_Flip(screen);
-			    int transposed_x = screen->w - 1 - mouseX;
-                    	    int transposed_y = screen->h - 1 - mouseY;
-			    simulatedEvent.type = SDL_MOUSEMOTION;
-			    simulatedEvent.motion.x = transposed_x;
-			    simulatedEvent.motion.y = transposed_y;
-			    ::SDL_PushEvent(&simulatedEvent);
-			    SDL_PumpEvents();
+		    case SDL_KEYDOWN: {
+				if (cursor::is_emulated()) {
+					switch(event.key.keysym.sym) {
+						case SDLK_TAB: {
+							cursor::set_emulated(false);
+							cursor::set_focus(true);
+							SDL_Flip(screen);
+							break;
+						}
+						case SDLK_SPACE: { 
+							int transposed_x = screen->w - 1 - mouseX;
+							int transposed_y = screen->h - 1 - mouseY;
+							simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+							simulatedEvent.button.button = SDL_BUTTON_LEFT;
+							simulatedEvent.button.state = SDL_PRESSED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							::SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							SDL_Delay(1);
+							simulatedEvent.type = SDL_MOUSEBUTTONUP;
+							simulatedEvent.button.button = SDL_BUTTON_LEFT;
+							simulatedEvent.button.state = SDL_RELEASED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							::SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							break;
+						}
+						case SDLK_LCTRL: { 
+							int transposed_x = screen->w - 1 - mouseX;
+							int transposed_y = screen->h - 1 - mouseY;
+							simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+							simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+							simulatedEvent.button.state = SDL_PRESSED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							::SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							SDL_Delay(1);
+							simulatedEvent.type = SDL_MOUSEBUTTONUP;
+							simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+							simulatedEvent.button.state = SDL_RELEASED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							::SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							break;
+						}
+						case SDLK_UP:
+							mouseY += MOUSE_MOVE_STEP;
+							break;
+						case SDLK_DOWN:
+							mouseY -= MOUSE_MOVE_STEP;
+							break;
+						case SDLK_LEFT:
+							mouseX += MOUSE_MOVE_STEP;
+							break;
+						case SDLK_RIGHT:
+							mouseX -= MOUSE_MOVE_STEP;
+							break;
+						default:
+							break;
+					}
+
+					if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
+						event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
+						SDL_WarpMouse(mouseX, mouseY);
+						SDL_Flip(screen);
+						int transposed_x = screen->w - 1 - mouseX;
+						int transposed_y = screen->h - 1 - mouseY;
+						simulatedEvent.type = SDL_MOUSEMOTION;
+						simulatedEvent.motion.x = transposed_x;
+						simulatedEvent.motion.y = transposed_y;
+						::SDL_PushEvent(&simulatedEvent);
+						SDL_PumpEvents();
+					}
+					break;
+				}
+				else if (event.key.keysym.sym == SDLK_TAB) {
+					cursor::set_emulated(true);
+					cursor::set_focus(true);
+					SDL_Flip(screen);
+					break;
+				}
+				break;
 			}
-			break;
-		    }
+			
 			case SDL_MOUSEMOTION: {
 				//always make sure a cursor is displayed if the
 				//mouse moves or if the user clicks
@@ -317,9 +338,11 @@ void pump()
 				raise_help_string_event(event.motion.x,event.motion.y);
 				break;
 			}
+			
 			//if the window must be redrawn, update the entire screen
 			case SDL_VIDEOEXPOSE: {
 				update_whole_screen();
+				cursor::set_focus(true);
 				break;
 			}
 
@@ -333,6 +356,7 @@ void pump()
 					resize_dimensions.first = resize->w;
 					resize_dimensions.second = resize->h;
 				}
+				cursor::set_focus(true);
 
 				break;
 			}
@@ -343,7 +367,6 @@ void pump()
 				cursor::set_focus(true);
 				if(event.button.button == SDL_BUTTON_LEFT) {
 					static const int DoubleClickTime = 500;
-
 					static const int DoubleClickMaxMove = 3;
 					const int current_ticks = ::SDL_GetTicks();
 					if(last_mouse_down >= 0 && current_ticks - last_mouse_down < DoubleClickTime &&

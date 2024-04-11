@@ -99,6 +99,7 @@ cursor::CURSOR_TYPE current_cursor = cursor::NUM_CURSORS;
 int cursor_x = -1, cursor_y = -1;
 surface cursor_buf = NULL;
 bool have_focus = true;
+bool isemulated = false;
 
 SDL_Cursor* get_cursor(cursor::CURSOR_TYPE type)
 {
@@ -160,6 +161,16 @@ void set(CURSOR_TYPE type)
 	if(cursor != NULL) {
 		SDL_SetCursor(cursor);
 	}
+}
+
+void set_emulated(bool emulated)
+{
+	isemulated = emulated;
+}
+
+bool is_emulated()
+{
+	return isemulated;
 }
 
 void set_focus(bool focus)

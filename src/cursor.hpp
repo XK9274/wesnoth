@@ -37,6 +37,9 @@ void undraw(surface screen);
 
 void set_focus(bool focus);
 
+void set_emulated(bool emulated);
+bool is_emulated();
+
 struct setter
 {
 	setter(CURSOR_TYPE type);

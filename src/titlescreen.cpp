@@ -58,7 +58,7 @@ bool fade_logo(display& screen, int xpos, int ypos)
 	static bool faded_in = false;
 
 	CKey key;
-	bool last_button = key[SDLK_ESCAPE] || key[SDLK_SPACE];
+	bool last_button = (cursor::is_emulated() == false) && (key[SDLK_ESCAPE] || key[SDLK_SPACE]);
 
 	LOG_DP << "fading logo in....\n";
 
@@ -74,7 +74,7 @@ bool fade_logo(display& screen, int xpos, int ypos)
 
 		if(!faded_in && (x%5) == 0) {
 
-			const bool new_button = key[SDLK_ESCAPE] || key[SDLK_SPACE] || key[SDLK_RETURN];
+			const bool new_button = (cursor::is_emulated() == false) && (key[SDLK_ESCAPE] || key[SDLK_SPACE] || key[SDLK_RETURN]);
 			if(new_button && !last_button) {
 				faded_in = true;
 			}

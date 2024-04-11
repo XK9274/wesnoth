@@ -14,6 +14,8 @@
 #include "../global.hpp"
 
 #include "textbox.hpp"
+#include "cursor.hpp"
+
 #include "../clipboard.hpp"
 #include "../font.hpp"
 #include "../language.hpp"
@@ -494,59 +496,61 @@ void textbox::handle_event(const SDL_Event& event)
 	wchar_t character = key.unicode;
 
 	//movement characters may have a "Unicode" field on some platforms, so ignore it.
-	if(!(c == SDLK_UP || c == SDLK_DOWN || c == SDLK_LEFT || c == SDLK_RIGHT ||
-	   c == SDLK_DELETE || c == SDLK_BACKSPACE || c == SDLK_END || c == SDLK_HOME ||
-	   c == SDLK_PAGEUP || c == SDLK_PAGEDOWN)) {
-		if(character != 0)
-			LOG_STREAM(info, display) << "Char: " << character << ", c = " << c << "\n";
+	if(cursor::is_emulated() == false) {			
+		if(!(c == SDLK_UP || c == SDLK_DOWN || c == SDLK_LEFT || c == SDLK_RIGHT ||
+		c == SDLK_DELETE || c == SDLK_BACKSPACE || c == SDLK_END || c == SDLK_HOME ||
+		c == SDLK_PAGEUP || c == SDLK_PAGEDOWN)) {
+			if(character != 0)
+				LOG_STREAM(info, display) << "Char: " << character << ", c = " << c << "\n";
 
-		if(event.key.keysym.mod & copypaste_modifier) {
-			switch(c) {
-			case SDLK_v: // paste
-				{
-				changed = true;
-				if(is_selection())
-					erase_selection();
+			if(event.key.keysym.mod & copypaste_modifier) {
+				switch(c) {
+				case SDLK_v: // paste
+					{
+					changed = true;
+					if(is_selection())
+						erase_selection();
 
-				std::string str = copy_from_clipboard();
+					std::string str = copy_from_clipboard();
 
-				//cut off anything after the first newline
-				str.erase(std::find_if(str.begin(),str.end(),utils::isnewline),str.end());
+					//cut off anything after the first newline
+					str.erase(std::find_if(str.begin(),str.end(),utils::isnewline),str.end());
 
-				wide_string s = utils::string_to_wstring(str);
+					wide_string s = utils::string_to_wstring(str);
 
-				if(text_.size() < max_size_) {
-					if(s.size() + text_.size() > max_size_) {
-						s.resize(max_size_ - text_.size());
+					if(text_.size() < max_size_) {
+						if(s.size() + text_.size() > max_size_) {
+							s.resize(max_size_ - text_.size());
+						}
+						text_.insert(text_.begin()+cursor_, s.begin(), s.end());
+						cursor_ += s.size();
 					}
-					text_.insert(text_.begin()+cursor_, s.begin(), s.end());
-					cursor_ += s.size();
+
+					}
+
+					break;
+
+				case SDLK_c: // copy
+					{
+					const size_t beg = minimum<size_t>(size_t(selstart_),size_t(selend_));
+					const size_t end = maximum<size_t>(size_t(selstart_),size_t(selend_));
+
+					wide_string ws = wide_string(text_.begin() + beg, text_.begin() + end);
+					std::string s = utils::wstring_to_string(ws);
+					copy_to_clipboard(s);
+					}
+					break;
 				}
+			} else {
+				if(character >= 32 && character != 127) {
+					changed = true;
+					if(is_selection())
+						erase_selection();
 
-				}
-
-				break;
-
-			case SDLK_c: // copy
-				{
-				const size_t beg = minimum<size_t>(size_t(selstart_),size_t(selend_));
-				const size_t end = maximum<size_t>(size_t(selstart_),size_t(selend_));
-
-				wide_string ws = wide_string(text_.begin() + beg, text_.begin() + end);
-				std::string s = utils::wstring_to_string(ws);
-				copy_to_clipboard(s);
-				}
-				break;
-			}
-		} else {
-			if(character >= 32 && character != 127) {
-				changed = true;
-				if(is_selection())
-					erase_selection();
-
-				if(text_.size() + 1 <= max_size_) {
-					text_.insert(text_.begin()+cursor_,character);
-					++cursor_;
+					if(text_.size() + 1 <= max_size_) {
+						text_.insert(text_.begin()+cursor_,character);
+						++cursor_;
+					}
 				}
 			}
 		}

@@ -221,7 +221,7 @@ void map_editor::handle_event(const SDL_Event &event) {
 
 void map_editor::handle_keyboard_event(const SDL_KeyboardEvent &event,
                                        const int /*mousex*/, const int /*mousey*/) {
-	if (event.type == SDL_KEYDOWN) {
+	if (cursor::is_emulated() == false && event.type == SDL_KEYDOWN) {
 		const SDLKey sym = event.keysym.sym;
 		// We must intercept escape-presses here because we don't want the
 		// default shutdown behavior, we want to ask for saving.
@@ -319,7 +319,7 @@ void map_editor::left_click(const gamemap::location hex_clicked) {
 			l_button_held_func_ = REMOVE_SELECTION;
 		}
 	}
-	else if (key_[SDLK_RCTRL] || key_[SDLK_LCTRL]) {
+	else if ((cursor::is_emulated() == false) && (key_[SDLK_RCTRL] || key_[SDLK_LCTRL])) {
 		const gamemap::TERRAIN terrain = map_.get_terrain(selected_hex_);
 		if(palette_.selected_fg_terrain() != terrain) {
 			palette_.select_fg_terrain(terrain);
@@ -351,7 +351,7 @@ void map_editor::left_click(const gamemap::location hex_clicked) {
 }
 
 void map_editor::right_click(const gamemap::location hex_clicked ) {
-	if (key_[SDLK_RCTRL] || key_[SDLK_LCTRL]) {
+	if ((cursor::is_emulated() == false) && (key_[SDLK_RCTRL] || key_[SDLK_LCTRL])) {
 		const gamemap::TERRAIN terrain = map_.get_terrain(hex_clicked);
 		if(palette_.selected_fg_terrain() != terrain) {
 			palette_.select_bg_terrain(terrain);
@@ -1359,17 +1359,19 @@ void map_editor::main_loop() {
 			show_menu(m->items(), x, y, false);
 		}
 
-		if(key_[SDLK_UP] || mousey == 0) {
-			gui_.scroll(0,-scroll_speed);
-		}
-		if(key_[SDLK_DOWN] || mousey == gui_.y()-1) {
-			gui_.scroll(0,scroll_speed);
-		}
-		if(key_[SDLK_LEFT] || mousex == 0) {
-			gui_.scroll(-scroll_speed,0);
-		}
-		if(key_[SDLK_RIGHT] || mousex == gui_.x()-1) {
-			gui_.scroll(scroll_speed,0);
+		if(cursor::is_emulated() == false) {
+			if(key_[SDLK_UP] || mousey == 0) {
+				gui_.scroll(0,-scroll_speed);
+			}
+			if(key_[SDLK_DOWN] || mousey == gui_.y()-1) {
+				gui_.scroll(0,scroll_speed);
+			}
+			if(key_[SDLK_LEFT] || mousex == 0) {
+				gui_.scroll(-scroll_speed,0);
+			}
+			if(key_[SDLK_RIGHT] || mousex == gui_.x()-1) {
+				gui_.scroll(scroll_speed,0);
+			}
 		}
 
 		if (l_button_down) {

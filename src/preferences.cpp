@@ -1403,7 +1403,7 @@ void show_hotkeys_dialog (display & disp, config *save_config)
 			int mod=0;
 			while (event.type!=SDL_KEYDOWN) SDL_PollEvent(&event);
 			do {
-				if (event.type==SDL_KEYDOWN)
+				if (cursor::is_emulated() == false && event.type==SDL_KEYDOWN)
 				{
 					key=event.key.keysym.sym;
 					mod=event.key.keysym.mod;

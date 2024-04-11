@@ -181,7 +181,7 @@ private:
 	void handle_event(const SDL_Event& event);
 	void mouse_motion(const SDL_MouseMotionEvent& event);
 	void mouse_motion(int x, int y);
-	void mouse_press(const SDL_MouseButtonEvent& event);
+	void mouse_press(const SDL_MouseButtonEvent& event_orig);
 
 	void left_click(const SDL_MouseButtonEvent& event);
 	void show_menu(const std::vector<std::string>& items, int xloc, int yloc, bool context_menu);

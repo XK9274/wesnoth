@@ -688,8 +688,8 @@ int show_dialog(display& disp, surface image,
 
 		const bool new_right_button = (mouse_flags&SDL_BUTTON_RMASK) != 0;
 		const bool new_left_button = (mouse_flags&SDL_BUTTON_LMASK) != 0;
-		const bool new_key_down = key[SDLK_SPACE] || key[SDLK_RETURN] ||
-		                          key[SDLK_ESCAPE];
+		const bool new_key_down = (cursor::is_emulated() == false) && (key[SDLK_SPACE] || key[SDLK_RETURN] ||
+		                          key[SDLK_ESCAPE]);
 
 		if((!key_down && key[SDLK_RETURN] || menu_.double_clicked()) &&
 		   (type == YES_NO || type == OK_CANCEL || type == OK_ONLY || type == CLOSE_ONLY)) {

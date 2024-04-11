@@ -14,6 +14,7 @@
 #include "global.hpp"
 
 #include "display.hpp"
+#include "cursor.hpp"
 #include "events.hpp"
 #include "font.hpp"
 #include "game_config.hpp"
@@ -208,8 +209,10 @@ bool show_intro_part(display &disp, const config& part,
 					int a, b;
 					const int mouse_flags = SDL_GetMouseState(&a,&b);
 					if(key[SDLK_RETURN] || key[SDLK_SPACE] || mouse_flags) {
-						pass = true;
-						continue;
+						if(cursor::is_emulated() == false){
+							pass = true;
+							continue;
+						}
 					}
 
 					disp.flip();
@@ -275,10 +278,12 @@ bool show_intro_part(display &disp, const config& part,
 		const bool keydown = key[SDLK_SPACE] || key[SDLK_RETURN];
 
 		if(keydown && !last_key || next_button.pressed()) {
-			if(skip == true || itor == utils::utf8_iterator::end(story)) {
-				break;
-			} else {
-				skip = true;
+			if(cursor::is_emulated() == false){
+				if(skip == true || itor == utils::utf8_iterator::end(story)) {
+					break;
+				} else {
+					skip = true;
+				}
 			}
 		}
 
