@@ -245,6 +245,7 @@ void pump()
 
 		    case SDL_KEYDOWN: {
 				if (cursor::is_emulated()) {
+					Uint8* keys = SDL_GetKeyState(NULL);
 					switch(event.key.keysym.sym) {
 						case SDLK_TAB: {
 							cursor::set_emulated(false);
@@ -294,15 +295,31 @@ void pump()
 						}
 						case SDLK_UP:
 							mouseY += MOUSE_MOVE_STEP;
+							if(keys[SDLK_LEFT])
+								mouseX += MOUSE_MOVE_STEP;
+							else if(keys[SDLK_RIGHT])
+								mouseX -= MOUSE_MOVE_STEP;
 							break;
 						case SDLK_DOWN:
 							mouseY -= MOUSE_MOVE_STEP;
+							if(keys[SDLK_LEFT])
+								mouseX += MOUSE_MOVE_STEP;
+							else if(keys[SDLK_RIGHT])
+								mouseX -= MOUSE_MOVE_STEP;
 							break;
 						case SDLK_LEFT:
 							mouseX += MOUSE_MOVE_STEP;
+							if(keys[SDLK_UP])
+								mouseY += MOUSE_MOVE_STEP;
+							else if(keys[SDLK_DOWN])
+								mouseY -= MOUSE_MOVE_STEP;
 							break;
 						case SDLK_RIGHT:
 							mouseX -= MOUSE_MOVE_STEP;
+							if(keys[SDLK_UP])
+								mouseY += MOUSE_MOVE_STEP;
+							else if(keys[SDLK_DOWN])
+								mouseY -= MOUSE_MOVE_STEP;
 							break;
 						default:
 							break;
