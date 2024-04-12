@@ -182,6 +182,9 @@ namespace preferences {
 	void set_theme(const std::string& theme);
 	const std::string& theme();
 
+	int mouse_motion();
+	void set_mouse_motion(int mouse_motion);
+
 	void show_preferences_dialog(display& disp, const config& game_cfg);
 	bool show_video_mode_dialog(display& disp);
 	// If prefs is non-null, save the hotkeys in that config instead of

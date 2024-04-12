@@ -229,7 +229,7 @@ void pump()
 	static SDL_Event simulatedEvent;
     static int mouseX = screen->w/2;
     static int mouseY = screen->h/2;
-	const int MOUSE_MOVE_STEP = 10;
+	int MOUSE_MOVE_STEP = preferences::mouse_motion();
 	if (cursor::is_emulated())
 		SDL_WarpMouse(mouseX, mouseY);
 
@@ -290,6 +290,66 @@ void pump()
 							SDL_Delay(1);
 							simulatedEvent.type = SDL_MOUSEBUTTONUP;
 							simulatedEvent.button.button = SDL_BUTTON_RIGHT;
+							simulatedEvent.button.state = SDL_RELEASED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							break;
+						}
+						case SDLK_LSHIFT: { 
+							int transposed_x = screen->w - 1 - mouseX;
+							int transposed_y = screen->h - 1 - mouseY;
+							simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+							simulatedEvent.button.button = SDL_BUTTON_MIDDLE;
+							simulatedEvent.button.state = SDL_PRESSED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							SDL_Delay(1);
+							simulatedEvent.type = SDL_MOUSEBUTTONUP;
+							simulatedEvent.button.button = SDL_BUTTON_MIDDLE;
+							simulatedEvent.button.state = SDL_RELEASED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							break;
+						}
+						case SDLK_e: { 
+							int transposed_x = screen->w - 1 - mouseX;
+							int transposed_y = screen->h - 1 - mouseY;
+							simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+							simulatedEvent.button.button = SDL_BUTTON_X1;
+							simulatedEvent.button.state = SDL_PRESSED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							SDL_Delay(1);
+							simulatedEvent.type = SDL_MOUSEBUTTONUP;
+							simulatedEvent.button.button = SDL_BUTTON_X1;
+							simulatedEvent.button.state = SDL_RELEASED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							break;
+						}
+						case SDLK_t: { 
+							int transposed_x = screen->w - 1 - mouseX;
+							int transposed_y = screen->h - 1 - mouseY;
+							simulatedEvent.type = SDL_MOUSEBUTTONDOWN;
+							simulatedEvent.button.button = SDL_BUTTON_X2;
+							simulatedEvent.button.state = SDL_PRESSED;
+							simulatedEvent.button.x = transposed_x;
+							simulatedEvent.button.y = transposed_y;
+							SDL_PushEvent(&simulatedEvent);
+							SDL_PumpEvents();
+							SDL_Delay(1);
+							simulatedEvent.type = SDL_MOUSEBUTTONUP;
+							simulatedEvent.button.button = SDL_BUTTON_X2;
 							simulatedEvent.button.state = SDL_RELEASED;
 							simulatedEvent.button.x = transposed_x;
 							simulatedEvent.button.y = transposed_y;

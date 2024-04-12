@@ -723,6 +723,16 @@ void set_theme(const std::string& theme)
 	}
 }
 
+int mouse_motion()
+{
+	return lexical_cast_default<int>(prefs["mouse_motion"], 10);
+}
+
+void set_mouse_motion(int mouse_motion)
+{
+	prefs["mouse_motion"] = lexical_cast_default<std::string>(mouse_motion, "10");
+}
+
 bool use_colour_cursors()
 {
 	return colour_cursors;
