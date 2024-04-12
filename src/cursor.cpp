@@ -29,11 +29,6 @@
 namespace
 {
 
-bool use_colour_cursors()
-{
-	return game_config::editor == false && preferences::use_colour_cursors();
-}
-
 SDL_Cursor* create_cursor(surface surf)
 {
 	const surface nsurf(make_neutral_surface(surf));
@@ -133,7 +128,7 @@ namespace cursor
 
 manager::manager()
 {
-	use_colour(use_colour_cursors());
+	use_colour(cursor::use_colour_cursors());
 }
 
 manager::~manager()
@@ -147,6 +142,11 @@ void use_colour(bool value)
 	if(game_config::editor == false) {
 		SDL_ShowCursor(value ? SDL_DISABLE : SDL_ENABLE);
 	}
+}
+
+bool use_colour_cursors()
+{
+	return game_config::editor == false && preferences::use_colour_cursors();
 }
 
 void set(CURSOR_TYPE type)

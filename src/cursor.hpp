@@ -39,6 +39,7 @@ void set_focus(bool focus);
 
 void set_emulated(bool emulated);
 bool is_emulated();
+bool use_colour_cursors();
 
 struct setter
 {

@@ -251,7 +251,9 @@ void pump()
 					switch(event.key.keysym.sym) {
 						case SDLK_TAB: {
 							cursor::set_emulated(false);
-							cursor::undraw(screen);
+							if(cursor::use_colour_cursors()){
+								cursor::undraw(screen);
+							}
 							SDL_Flip(screen);
 							break;
 						}
@@ -330,10 +332,12 @@ void pump()
 					if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
 						event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) {
 						SDL_WarpMouse(mouseX, mouseY);
-						cursor::undraw(screen);
-						SDL_Flip(screen);
 						cursor::set_focus(true);
-						cursor::draw(screen);
+						if(cursor::use_colour_cursors()){
+							cursor::undraw(screen);
+							SDL_Flip(screen);
+							cursor::draw(screen);
+						}
 						SDL_Flip(screen);
 						int transposed_x = screen->w - 1 - mouseX;
 						int transposed_y = screen->h - 1 - mouseY;
@@ -348,10 +352,12 @@ void pump()
 				else if (event.key.keysym.sym == SDLK_TAB) {
 					cursor::set_emulated(true);
 					SDL_WarpMouse(mouseX, mouseY);
-					cursor::undraw(screen);
-					SDL_Flip(screen);
 					cursor::set_focus(true);
-					cursor::draw(screen);
+					if(cursor::use_colour_cursors()){
+						cursor::undraw(screen);
+						SDL_Flip(screen);
+						cursor::draw(screen);
+					}
 					SDL_Flip(screen);
 					break;
 				}
