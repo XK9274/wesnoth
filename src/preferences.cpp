@@ -1336,8 +1336,8 @@ void show_hotkeys_dialog (display & disp, config *save_config)
 	const int width = 300;			  // FIXME: should compute this, but using what data ?
 	const int height = 220;
 #else
-	const int width = 700;
-	const int height = 500;
+	const int width = 640;
+	const int height = 480;
 #endif
 	const int xpos = centerx  - width/2;
 	const int ypos = centery  - height/2;
@@ -1388,6 +1388,9 @@ void show_hotkeys_dialog (display & disp, config *save_config)
 	save_button.set_location(xpos + width - save_button.width () - font::relative_size(30),ypos + font::relative_size(130));
 
 	for(;;) {
+		Uint8* keys = SDL_GetKeyState(NULL);
+		if(keys[SDLK_ESCAPE])
+			break;
 
 		if (close_button.pressed())
 			break;

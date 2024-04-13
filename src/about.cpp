@@ -375,7 +375,6 @@ void show_about(display &disp)
 	gui::button close(video,_("Close"));
 	close.set_location((video.getx()/2)-(close.width()/2), map_rect.y+map_rect.h+15);
 
-
 	//substitute in the correct control characters for '+' and '-'
 	std::string before_header(2, ' ');
 	before_header[0] = font::LARGE_TEXT;
